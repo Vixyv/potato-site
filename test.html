@@ -1,0 +1,87 @@
+<!--
+    This code is entirely created by chatGPT with prompt of
+    "create a html file that, when opened, shows 10 by 5 grid
+    of 15px by 20px squares with random colours and no spacing between,
+    and every 1 second updates the colours without white blink"
+    and does pretty much exactly that.
+
+    I decided to leave it here mosly for myself.
+    Do not ask me how any of this works :)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grid of Random Colored Squares</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(10, 15px);
+        grid-template-rows: repeat(5, 20px);
+    }
+
+    .grid-item {
+        width: 15px;
+        height: 20px;
+    }
+</style>
+</head>
+<body>
+<div class="grid-container" id="grid-container"></div>
+
+<script>
+
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    function updateGridColors() {
+        var gridItems = document.querySelectorAll('.grid-item');
+        gridItems.forEach(function(item) {
+            item.style.backgroundColor = getRandomColor();
+        });
+    }
+
+    function updateColorsWithoutBlink() {
+        var gridItems = document.querySelectorAll('.grid-item');
+        gridItems.forEach(function(item) {
+            item.style.transition = 'background-color 1s linear';
+        });
+        setTimeout(function() {
+            updateGridColors();
+            requestAnimationFrame(function() {
+                setTimeout(function() {
+                    gridItems.forEach(function(item) {
+                        item.style.transition = 'none';
+                    });
+                }, 0);
+            });
+        }, 1000);
+    }
+
+    window.onload = function() {
+        var gridContainer = document.getElementById('grid-container');
+        for (var i = 0; i < 50; i++) {
+            var gridItem = document.createElement('div');
+            gridItem.classList.add('grid-item');
+            gridContainer.appendChild(gridItem);
+        }
+        updateGridColors();
+        setInterval(updateColorsWithoutBlink, 1000);
+    };
+
+
+</script>
+</body>
+</html>
