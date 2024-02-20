@@ -1,0 +1,301 @@
+<!--
+    This was a bit worse then I thought because
+    I could not just copy stuff from my java project
+    and had to completely rewrite it
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grid of Colored Squares</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(51, 10px);
+        grid-template-rows: repeat(51, 10px);
+    }
+
+    .grid-item {
+        width: 10px;
+        height: 10px;
+    }
+</style>
+</head>
+<body>
+<div class="grid-container" id="grid-container"></div>
+<script>
+
+
+    const hexDecSymbs = '0123456789ABCDEF';
+    var tileNum = 0;
+
+
+    // This is the function that determines the colour of the squares.
+    function getSquareColor() {
+        /* console.log(Math.floor(tileNum / tileGrid.length) + " " + tileNum % tileGrid[0].length, getRGBFromHeight(
+            tileGrid[
+                Math.floor(tileNum / tileGrid.length)
+            ][
+                tileNum % tileGrid[0].length
+            ]
+        )); */
+        /* console.log(tileGrid[
+                Math.floor(tileNum / tileGrid.length)
+            ][
+                tileNum % tileGrid[0].length
+        ]); */
+        return getRGBFromHeight(
+            tileGrid[
+                Math.floor(tileNum / tileGrid.length)
+            ][
+                tileNum % tileGrid[0].length
+            ][0]
+        );
+    }
+
+
+    // Creates an array with 3 elements of red, green, and blue that go from blue to yellow, depending of the height
+    function getRGBFromHeight(height) {
+
+        let dst = Math.floor(height * 51 + 127);
+        if (dst > 255) dst = 255;
+        else if (dst < 0) dst = 0;
+
+        // console.log(height);
+
+        if (dst < 127) return RGBArrayToColor([dst * 2, dst * 2, 255]);
+        else           return RGBArrayToColor([255, 255, 255 + 127 - dst]);
+
+    }
+
+    /*
+
+    Original function on Java:
+
+    public int[] createColor() {
+
+        int dst = (int) height * 51 + 127;
+        if (dst > 255) dst = 255;
+        else if (dst < 0) dst = 0;
+
+        if (dst < 127) {
+            return new int[] {
+                    dst * 2,
+                    dst * 2,
+                    255
+            };
+        } else {
+            return new int[] {
+                    255,
+                    255,
+                    255 + 127 - dst
+            };
+        }
+    }
+
+     */
+
+
+    function decToHex(dec) {
+        // console.log(hexDecSymbs[dec % 16], dec);
+        return hexDecSymbs[Math.floor(dec / 16)] + hexDecSymbs[dec % 16];
+    }
+
+    function RGBArrayToColor(RGBArray) {
+        // console.log(RGBArray);
+        // console.log(decToHex(RGBArray[0]) + decToHex(RGBArray[1]) + decToHex(RGBArray[2]));
+        return "#" + decToHex(RGBArray[0]) + decToHex(RGBArray[1]) + decToHex(RGBArray[2]);
+    }
+
+
+
+    // Updates the grid of the squares.
+    function updateGridColors() {
+        var gridItems = document.querySelectorAll('.grid-item');
+        tileNum = 0;
+        gridItems.forEach(function(item) {
+            item.style.backgroundColor = getSquareColor();
+            tileNum++;  // This might be very stupid, but hey! If it works - it works
+        });
+    }
+
+
+    // Uses eldritch magic to remove the blink we would be getting by using updateGridColors() directly.
+    function updateColorsWithoutBlink() {
+        var gridItems = document.querySelectorAll('.grid-item');
+        gridItems.forEach(function(item) {
+            item.style.transition = 'background-color 1s linear';
+        });
+        setTimeout(function() {
+            updateGridColors();
+            requestAnimationFrame(function() {
+                setTimeout(function() {
+                    gridItems.forEach(function(item) {
+                        item.style.transition = 'none';
+                    });
+                }, 0);
+            });
+        }, 1000);
+    }
+
+
+    // ########################################################################################################
+
+    
+    // Returns 0 if num is undefuned, otherwise returns the input
+    function undefSafeIdentity(num) {
+        return num === undefined ? 0 : num;
+    }
+
+
+    // Resturns the sum of non-undefined elemnts.
+    function undefSafeSum(numArray) {
+        let total = 0;
+        for (let elemKey in numArray) {
+            total += undefSafeIdentity(numArray[elemKey]);
+        }
+        return total;
+    }
+
+
+    // Adds speed of tiles to their height. Uses the global variable of tileGrid.
+    function moveTiles() {
+        // Arrays in js are actually hashmaps of String: T
+        // Super wierd.
+        for (let tileLineKey in tileGrid) {
+            for (let tileKey in tileGrid[tileLineKey]) {
+                tileGrid[tileLineKey][tileKey][0] += tileGrid[tileLineKey][tileKey][1];
+            }
+        }
+    }
+
+
+    // Changes the speed of the tiles, depending on the neighbours' position.
+    function interactWithNeighbouringTiles() {
+
+        let x, y;
+        for (let tileLineKey in tileGrid) {
+            y = Number(tileLineKey);
+            for (let tileKey in tileGrid[tileLineKey]) {
+                x = Number(tileKey);
+                
+                
+
+                // This massive array of if's adds up the surrounding tiles' height but only if they exist
+                //      'Who needs curly brackets?'
+                if (x == 0)                                if (y == 0)                      tileGrid[y][x][1] += ((tileGrid[y + 1][x][0] +                         tileGrid[y][x + 1][0]                        ) / 2 - tileGrid[y][x][0]) / 10;
+                                                      else if (y == tileGrid[x].length - 1) tileGrid[y][x][1] += ((                        tileGrid[y - 1][x][0] + tileGrid[y][x + 1][0]                        ) / 2 - tileGrid[y][x][0]) / 10;
+                                                         else                               tileGrid[y][x][1] += ((tileGrid[y + 1][x][0] + tileGrid[y - 1][x][0] + tileGrid[y][x + 1][0]                        ) / 3 - tileGrid[y][x][0]) / 10;
+
+                else if (x == tileGrid[x].length - 1)      if (y == 0)                      tileGrid[y][x][1] += ((tileGrid[y + 1][x][0] +                                                 tileGrid[y][x - 1][0]) / 2 - tileGrid[y][x][0]) / 10;
+                                                      else if (y == tileGrid[x].length - 1) tileGrid[y][x][1] += ((                        tileGrid[y - 1][x][0] +                         tileGrid[y][x - 1][0]) / 2 - tileGrid[y][x][0]) / 10;
+                                                         else                               tileGrid[y][x][1] += ((tileGrid[y + 1][x][0] + tileGrid[y - 1][x][0] +                         tileGrid[y][x - 1][0]) / 3 - tileGrid[y][x][0]) / 10;
+
+                else                                       if (y == 0)                      tileGrid[y][x][1] += ((tileGrid[y + 1][x][0] +                         tileGrid[y][x + 1][0] + tileGrid[y][x - 1][0]) / 3 - tileGrid[y][x][0]) / 10;
+                                                      else if (y == tileGrid[x].length - 1) tileGrid[y][x][1] += ((                        tileGrid[y - 1][x][0] + tileGrid[y][x + 1][0] + tileGrid[y][x - 1][0]) / 3 - tileGrid[y][x][0]) / 10;
+                                                         else                               tileGrid[y][x][1] += ((tileGrid[y + 1][x][0] + tileGrid[y - 1][x][0] + tileGrid[y][x + 1][0] + tileGrid[y][x - 1][0]) / 4 - tileGrid[y][x][0]) / 10;
+                
+                // As you might be able to tell, at this point I've pretty much given up on making this code undestandable by any human being.
+
+            }
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------------------
+
+
+    // Returns true or false, randomly
+    function rnBool() {
+        return Math.random() > 0.5;
+    }
+
+
+    // Returns a random integer within [min, max],
+    // as long as both min and max are integers.
+    function rnInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+
+    // --------------------------------------------------------------------------------------------------------
+
+    var tileGrid = [];  // [[[height, speed], ...], ...]
+
+
+    // Initializing tileGrid with links to different arrays rather than with a link to one array
+    {  // Scope is so that the code will not be flooded with junk initialization data
+
+        let _stdTile = [0, 0];
+        let _stdLine;
+        
+        for (let i = 0; i < 51; i++) {
+            _stdLine = [];
+            for (let j = 0; j < 51; j++) {
+                _stdLine.push(_stdTile.slice(0));  // Array.slice(0) copies it
+            }
+            tileGrid.push(_stdLine);
+        }
+    
+    }  // This was annoying. Good thing I only need to initialize one array
+
+
+    {
+        // Set to 2 because this makes it easiest to see how the stuff works
+        let _seedCounter = 2;  // = rnInt(2, 4);
+        for (let i = 0; i < _seedCounter; i++) {
+            tileGrid[
+                rnInt(0, tileGrid.length - 1)
+            ][
+                rnInt(0, tileGrid.length - 1)
+            ] = [rnBool() ? 50 : -50, 0];
+        }
+    }
+    
+    // This abomination prints out the tileGrid.
+    /* {
+        let str;
+        for (let key in tileGrid) {
+            str = "";
+            for (let key2 in tileGrid[key]) {
+                str += " [" + tileGrid[key][key2] + "] ";
+            }
+            console.log(str);
+        }
+    } */
+
+
+
+    // ########################################################################################################
+
+
+    // This runs once, when the page loads. I think.
+    window.onload = function() {
+        // Initializes the grid, probably.
+        var gridContainer = document.getElementById('grid-container');
+        for (let i = 0; i < 2601 /* grid height * grid width */; i++) {
+            var gridItem = document.createElement('div');
+            gridItem.classList.add('grid-item');
+            gridContainer.appendChild(gridItem);
+        }
+        updateGridColors();
+        // It seems useles. It draws the suares initially; not much I can say about it.
+
+        // This runs again and again afterwards.
+        setInterval(function() {
+            interactWithNeighbouringTiles();
+            moveTiles();
+            updateColorsWithoutBlink();
+        }, 100);
+    };
+
+
+
+</script>
+</body>
+</html>
