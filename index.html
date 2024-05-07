@@ -1,111 +1,30 @@
-<style>
-
-    * {
-        font-family: monospace;
-    }
-
-</style>
-
-<body>
-  <div id="output"></div>
-  <div id="cursorBox"></div>
-  <!--
-  <span style="display: inline;">
-    <input type="button" value="<" onclick="cursor--;updateDisplay()">
-    <input type="button" value=">" onclick="cursor++;updateDisplay()">
-  </span>
-  -->
-
-  <div id="cardBox"></div>
-
-</body>
-
-<script>
-
-  class Card {
-
-    constructor(name, cost, action) {
-      this.name = name;
-      this.cost = cost === undefined ? 0 : cost;
-      this.action = action === undefined ? () => {} : action;
-    }
-    
-    castToCardTable() {
-      return (
-        `
+<html>
+  <head>
+    <title>Main placeholder</title>
+    <style>
+      table { display: inline-table; }
+      table, th, td { border: 1px solid black; }
+      .center-aligned { text-align: center; }
+    </style>
+  </head>
+  <body>
+    <h1 class="center-aligned">
+      Добро пожаловать на Катрофельный Сайт!
+    </h1>
+    <h2 class="center-aligned">
+      On the Potato Site, you can do stuff
+    </h2>
+    <h6 class="center-aligned">Wow</h6>
+    <div class="center-aligned">
+        <!-- LINK BEGINNING TAG DO NOT REMOVE -->
+        
         <table><tr><th>
         <img src="sourceFolder/pageFreezer.png" alt="pageFreezer" width="200" height="200">
         </th></tr><tr><th>
         <a href="sourceFolder/pageFreezer.html">pageFreezer</a>
         </th></tr></table>
-        `
-      )
-    }
 
-  }
-
-  var stdout = "output";
-
-  function output(obj) {
-    document.getElementById(stdout).innerHTML += obj;
-  }
-
-  function clearStdout() {
-    document.getElementById(stdout).innerHTML = "";
-  }
-
-  class Bar {
-
-    constructor(max, value, width) {
-      this.max = max;
-      this.value = value;
-      this.width = width;
-    }
-
-    display() {
-      let foundInnerBarEnd = false;
-      for (let i = 0; i < this.width; i++) {
-        if (!foundInnerBarEnd && i / this.width > this.value / this.max) {
-          foundInnerBarEnd = true;
-        }
-        output(foundInnerBarEnd ? "_" : "|");
-      }
-    }
-
-    getDisplayArray() {
-      let dispArr = [
-        "+" + "=".repeat(this.width + 2) + "+",
-        "| ",
-        "+" + "=".repeat(this.width + 2) + "+"
-      ];
-      let foundInnerBarEnd = false;
-      for (let i = 0; i < this.width; i++) {
-        if (!foundInnerBarEnd && i / this.width >= this.value / this.max) {
-          foundInnerBarEnd = true;
-        }
-        dispArr[1] += foundInnerBarEnd ? "_" : "#";
-      }
-      dispArr[1] += " |";
-      return dispArr;
-    }
-
-  }
-
-  let bar = new Bar(100, 57, 10);
-  let cursor = 10;
-
-  function updateDisplay() {
-    clearStdout();
-    output(bar.getDisplayArray().join("<br>"));
-    output("<br>" + bar.value + " " + cursor);
-  }
-
-  setInterval(
-    () => {
-      bar.value++;
-      updateDisplay();
-    },
-    1000
-  );
-
-</script>
+        <!-- LINK END TAG DO NOT REMOVE -->
+    </div class="center-aligned">
+  </body>
+</html>
